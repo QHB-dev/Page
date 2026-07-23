@@ -1,0 +1,91 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="About Us — Shedio" active="" preloadImage="/images/about-hero.webp"
+      preloadImages={["/images/about-quote.webp"]}
+      description="We started Shedio to make healthy living feel easy and low-pressure, for everyone.">
+
+  <main class="wrap">
+    <section class="about-hero">
+      <h1>Building a healthier way to move</h1>
+      <p>We started Shedio to help people feel better, gently, no matter your age, ability, or where you're beginning.</p>
+      <div class="about-img"><img src="/images/about-hero.webp" alt="" width="2048" height="1152" loading="eager" fetchpriority="high" decoding="sync"></div>
+    </section>
+
+    <section class="why">
+      <h2>Why we started Shedio</h2>
+      <div class="quote-row">
+        <div class="quote-img ph" data-ph="about-quote.webp"><img src="/images/about-quote.webp" alt="" loading="eager" fetchpriority="high" decoding="async" onload="this.parentNode.classList.add('has-img')" onerror="this.style.display='none'"></div>
+        <div class="quote-box">
+          <span class="mark">&ldquo;</span>
+          <blockquote>We started Shedio to make healthy living feel easy and low-pressure, for everyone.</blockquote>
+          <cite>Shedio Team</cite>
+        </div>
+      </div>
+    </section>
+
+    <section class="values">
+      <h2>Our values</h2>
+      <div class="value-grid">
+        <div class="value-card">
+          <span class="vico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg></span>
+          <h3>No Pressure</h3>
+        </div>
+        <div class="value-card">
+          <span class="vico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+          <h3>At your own pace</h3>
+        </div>
+        <div class="value-card">
+          <span class="vico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" x2="9.01" y1="9" y2="9"/><line x1="15" x2="15.01" y1="9" y2="9"/></svg></span>
+          <h3>No shame</h3>
+        </div>
+        <div class="value-card">
+          <span class="vico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span>
+          <h3>Small steps, real progress</h3>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <style is:global>
+    .about-hero{padding:var(--section-y) 0 40px}
+    .about-hero h1{font-size:var(--fs-h1);font-weight:var(--fw-bold);line-height:var(--lh-heading);letter-spacing:var(--ls-display);max-width:16ch;color:var(--navy)}
+    .about-hero p{color:var(--muted);font-size:var(--fs-lead);line-height:var(--lh-snug);max-width:var(--measure-lead);margin-top:16px}
+    .about-img{aspect-ratio:21/9;border-radius:var(--r-lg);margin:var(--space-6) 0 var(--space-5);overflow:hidden;background:#eee9df}
+    /* 人物在画面右侧：裁切偏右，避免手机竖裁时把人/膝盖切掉（桌面裁上下，此设置无副作用） */
+    .about-img img{width:100%;height:100%;display:block;object-fit:cover;object-position:88% center}
+    .why{padding:var(--section-y) 0 var(--space-5)}
+    .why h2{font-size:var(--fs-h2);font-weight:var(--fw-bold);line-height:var(--lh-heading);margin-bottom:var(--space-5);color:var(--navy)}
+    .quote-row{display:grid;grid-template-columns:1fr 1.2fr;gap:var(--space-6);align-items:stretch}
+    .quote-img{aspect-ratio:1/1;border-radius:var(--r-lg);min-height:260px}
+    .quote-box{background:var(--surface-2);border-radius:var(--r-lg);padding:var(--space-7);display:flex;flex-direction:column;justify-content:center}
+    .quote-box .mark{font-size:40px;color:#b8b2a4;line-height:.5}
+    .quote-box blockquote{font-size:var(--fs-h3);font-weight:var(--fw-semibold);margin:var(--space-4) 0;line-height:var(--lh-snug);text-wrap:balance}
+    .quote-box cite{font-style:normal;font-size:var(--fs-small);color:var(--muted);font-weight:var(--fw-semibold)}
+    .values{padding:var(--section-y) 0}
+    .values h2{font-size:var(--fs-h2);font-weight:var(--fw-bold);line-height:var(--lh-heading);margin-bottom:var(--space-5);color:var(--navy)}
+    .value-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-4)}
+    .value-card{background:var(--surface-2);border-radius:var(--r-lg);padding:var(--space-6) var(--space-5);min-height:150px;display:flex;flex-direction:column;gap:var(--space-3);
+      transition:transform var(--dur) var(--ease),box-shadow var(--dur) var(--ease)}
+    .value-card:hover{transform:translateY(-2px);box-shadow:var(--elev-1)}
+    .value-card .vico{width:44px;height:44px;display:grid;place-items:center;color:#4a453d;transition:color var(--dur)}
+    .value-card .vico svg{width:26px;height:26px;display:block}
+    .value-card:hover .vico{color:#332f29}
+    .value-card h3{font-size:var(--fs-h5);font-weight:var(--fw-semibold);line-height:var(--lh-snug)}
+    /* 「Why we started」在窄屏堆叠：正方形群像图居中、给个上限，避免小或过高 */
+    @media(max-width:960px){.quote-row{grid-template-columns:1fr;gap:22px}.quote-img{max-width:480px;margin:0 auto;width:100%}}
+    @media(max-width:860px){.value-grid{grid-template-columns:1fr 1fr}}
+    /* 手机端细化（≤600px） */
+    @media(max-width:600px){
+      .about-hero{padding:40px 0 24px}
+      .about-hero p{font-size:16px}
+      .about-img{aspect-ratio:4/3}
+      .why{padding:38px 0 12px}
+      .quote-img{min-height:200px}
+      .quote-box{padding:26px}
+      .values{padding:38px 0}
+      .value-grid{gap:12px}
+      .value-card{padding:20px 16px;min-height:0}
+    }
+  </style>
+</Base>
