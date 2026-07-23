@@ -1,0 +1,107 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="New Post — Shedio Admin" bare={true}>
+  <header class="site-header">
+    <div class="wrap nav">
+      <a href="/" class="brand">Shedio</a>
+      <nav class="nav-links">
+        <a href="/blog/">Blog</a>
+        <a href="/admin/" class="active">New Post</a>
+      </nav>
+      <div class="nav-right"><button class="btn btn-outline" id="logoutBtn" style="display:none">Log out</button></div>
+    </div>
+  </header>
+
+  <main class="admin">
+    <div class="gate" id="gate" style="display:none">
+      <h2 style="font-size:20px;font-weight:600;margin-bottom:8px">需要先登录</h2>
+      <p class="muted" style="font-size:14px;margin-bottom:18px">发布博客内容需要登录账号。</p>
+      <a href="/login/" class="btn btn-dark">前往登录</a>
+    </div>
+
+    <div id="editor">
+      <div class="admin-head"><h1>Write a new post</h1></div>
+      <p class="admin-sub">填写后点击「Publish」，将通过预留接口 <code>Shedio.Blog.create()</code> 提交到你们的后端。</p>
+      <form id="postForm">
+        <div class="field"><label>Cover image · 封面图</label>
+          <div class="cover-drop" id="coverDrop">点击选择封面图片（可选）</div>
+          <input type="file" id="coverInput" accept="image/*" hidden>
+          <div class="cover-preview" id="coverPreview"><img id="coverImg" alt=""></div>
+        </div>
+        <div class="row2">
+          <div class="field"><label for="title">Title · 标题</label><input type="text" id="title" placeholder="Gentle moves for stiff, achy hips" required></div>
+          <div class="field"><label for="category">Category · 分类</label><input type="text" id="category" placeholder="Movement · Hips"></div>
+        </div>
+        <div class="row2">
+          <div class="field"><label for="readTime">Read time · 阅读时长</label><input type="text" id="readTime" placeholder="6-min read"></div>
+          <div class="field"><label for="excerpt">Excerpt · 摘要</label><input type="text" id="excerpt" placeholder="One line that shows on the blog list."></div>
+        </div>
+        <div class="field"><label for="body">Content · 正文</label>
+          <textarea id="body" rows="12" placeholder="用空行分段。以「1. 小标题 — 内容」的格式书写可自动加粗小标题。" required></textarea></div>
+        <div class="actions">
+          <button type="submit" class="btn btn-dark" id="publishBtn">Publish · 发布</button>
+          <a href="/blog/" class="btn btn-outline">Cancel</a>
+          <span class="form-note" id="postNote" style="margin-left:auto"></span>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <script is:inline>
+    if(!Shedio.isDemo() && !Shedio.Auth.isLoggedIn()){
+      document.getElementById('editor').style.display='none';
+      document.getElementById('gate').style.display='block';
+    }
+    if(Shedio.Auth.isLoggedIn()){
+      var lo=document.getElementById('logoutBtn'); lo.style.display='inline-flex';
+      lo.onclick=function(){ Shedio.Auth.logout(); location.href='/login/'; };
+    }
+    var coverUrl='';
+    var drop=document.getElementById('coverDrop'), input=document.getElementById('coverInput');
+    drop.addEventListener('click', function(){ input.click(); });
+    input.addEventListener('change', async function(){
+      if(!input.files[0]) return;
+      drop.textContent='上传中…';
+      try{
+        var r = await Shedio.Blog.uploadImage(input.files[0]);
+        coverUrl=r.url; document.getElementById('coverImg').src=coverUrl;
+        document.getElementById('coverPreview').style.display='block';
+        drop.textContent='✓ 已选择封面（点击可更换）';
+      }catch(e){ drop.textContent='上传失败：'+e.message; }
+    });
+    var note=document.getElementById('postNote'), pbtn=document.getElementById('publishBtn');
+    document.getElementById('postForm').addEventListener('submit', async function(e){
+      e.preventDefault(); note.className='form-note'; note.textContent='';
+      pbtn.disabled=true; pbtn.textContent='Publishing…';
+      try{
+        var post = await Shedio.Blog.create({
+          title: document.getElementById('title').value.trim(),
+          category: document.getElementById('category').value.trim(),
+          readTime: document.getElementById('readTime').value.trim(),
+          excerpt: document.getElementById('excerpt').value.trim(),
+          body: document.getElementById('body').value,
+          coverImage: coverUrl,
+        });
+        note.className='form-note ok'; note.textContent='✓ 发布成功！';
+        setTimeout(function(){ location.href='/blog/article/?id='+encodeURIComponent(post.id); }, 800);
+      }catch(err){ note.className='form-note err'; note.textContent=err.message||'发布失败'; }
+      finally{ pbtn.disabled=false; pbtn.textContent='Publish · 发布'; }
+    });
+  </script>
+
+  <style is:global>
+    .admin{max-width:760px;margin:40px auto;padding:0 24px}
+    .admin-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+    .admin-head h1{font-size:28px;font-weight:600}
+    .admin-sub{color:var(--muted);font-size:14px;margin-bottom:26px}
+    .cover-drop{border:1.5px dashed var(--line-strong);border-radius:14px;padding:26px;text-align:center;color:var(--muted);font-size:14px;cursor:pointer;background:#fff;transition:.2s border-color}
+    .cover-drop:hover{border-color:var(--ink)}
+    .cover-preview{margin-top:12px;border-radius:12px;overflow:hidden;display:none}
+    .cover-preview img{width:100%;max-height:240px;object-fit:cover}
+    .row2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .actions{display:flex;gap:12px;align-items:center;margin-top:8px}
+    .gate{background:#fff;border:1px solid var(--line);border-radius:16px;padding:26px;text-align:center;box-shadow:var(--shadow)}
+    @media(max-width:640px){.row2{grid-template-columns:1fr}}
+  </style>
+</Base>
