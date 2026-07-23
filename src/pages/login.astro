@@ -1,0 +1,63 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="Log in — Shedio" bare={true}>
+  <header class="site-header">
+    <div class="wrap nav">
+      <a href="/" class="brand">Shedio</a>
+      <nav class="nav-links">
+        <a href="/#features">App Features</a>
+        <a href="/about/">About Us</a>
+        <a href="/blog/">Blog</a>
+      </nav>
+      <div class="nav-right"><a href="/" class="btn btn-outline">Home</a></div>
+    </div>
+  </header>
+
+  <main class="narrow">
+    <div class="panel">
+      <h1 style="font-size:var(--fs-h3);font-weight:var(--fw-semibold);line-height:var(--lh-heading);margin-bottom:6px">Welcome back</h1>
+      <p class="muted" style="font-size:var(--fs-small);margin-bottom:24px">Log in to continue at your own pace.</p>
+      <form id="loginForm">
+        <div class="field"><label for="email">Email</label>
+          <input type="email" id="email" placeholder="you@example.com" autocomplete="email" required></div>
+        <div class="field"><label for="password">Password</label>
+          <input type="password" id="password" placeholder="••••••••" autocomplete="current-password" required></div>
+        <button type="submit" class="btn btn-dark btn-block" id="loginBtn">Log in</button>
+        <div class="form-note" id="loginNote"></div>
+      </form>
+      <p class="muted" style="font-size:13px;margin-top:20px;text-align:center">
+        New to Shedio? <a href="#" style="color:var(--ink);font-weight:600">Find your starting point →</a>
+      </p>
+    </div>
+    <p class="muted" style="font-size:12px;text-align:center;margin-top:18px">
+      接口对接点：登录逻辑在 <code>public/assets/api.js → Shedio.Auth.login()</code>
+    </p>
+  </main>
+
+  <script is:inline>
+    var form = document.getElementById('loginForm');
+    var note = document.getElementById('loginNote');
+    var btn  = document.getElementById('loginBtn');
+    form.addEventListener('submit', async function(e){
+      e.preventDefault();
+      note.className='form-note'; note.textContent='';
+      btn.disabled=true; btn.textContent='Logging in…';
+      try{
+        var res = await Shedio.Auth.login({
+          email: document.getElementById('email').value.trim(),
+          password: document.getElementById('password').value,
+        });
+        note.className='form-note ok';
+        note.textContent = '✓ 登录成功，欢迎 ' + (res.user && (res.user.name||res.user.email) || '') + '！';
+        setTimeout(function(){ location.href = '/admin/'; }, 700);
+      }catch(err){
+        note.className='form-note err'; note.textContent = err.message || '登录失败，请重试';
+      }finally{ btn.disabled=false; btn.textContent='Log in'; }
+    });
+    if(Shedio.isDemo()){
+      note.className='form-note';
+      note.textContent='演示模式：随便填邮箱密码即可登录（接入后端后自动走真实接口）。';
+    }
+  </script>
+</Base>
