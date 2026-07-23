@@ -1,0 +1,138 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+<Base title="Article — Shedio" active="blog" showBlog={true} brand="shedio">
+
+  <main class="wrap">
+    <div class="breadcrumb"><a href="/blog/">Blog</a> &nbsp;/&nbsp; <a href="/blog/" id="crumbCat">Movement</a> &nbsp;/&nbsp; <span id="crumbTitle">Article</span></div>
+    <div class="article-layout">
+      <article>
+        <span class="chip" id="aChip"></span>
+        <div class="article-head">
+          <h1 id="aTitle">Loading…</h1>
+          <div class="byline" id="aByline">Shedio Team</div>
+        </div>
+        <div class="article-cover ph" id="aCover"></div>
+        <div class="article-body" id="aBody"></div>
+        <p class="disclaimer">General wellness information, not medical advice. If you have ongoing or severe pain, check with a health professional.</p>
+      </article>
+
+    </div>
+
+    <section class="more">
+      <h2>More from Shedio</h2>
+      <div class="more-grid" id="moreGrid"></div>
+    </section>
+  </main>
+
+  <script is:inline>
+    function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+    // 封面占位框：有 coverImage 就渲染 <img>（放入图片自动盖住占位，图缺失则回退占位）
+    function phBox(cls, cover){
+      if(!cover) return '<div class="'+cls+' ph"></div>';
+      var name = cover.split('/').pop();
+      return '<div class="'+cls+' ph" data-ph="'+esc(name)+'">'+
+        '<img src="'+esc(cover)+'" alt="" loading="lazy" '+
+        'onload="this.parentNode.classList.add(\'has-img\')" onerror="this.style.display=\'none\'"></div>';
+    }
+    function fillCover(el, cover){
+      if(!el || !cover) return;
+      el.setAttribute('data-ph', cover.split('/').pop());
+      var img = new Image();
+      img.alt = ''; img.src = cover;
+      img.onload = function(){ el.classList.add('has-img'); };
+      img.onerror = function(){ img.style.display='none'; };
+      el.appendChild(img);
+    }
+    // 轻量 Markdown 渲染：**加粗** / *斜体* / 独立 **小标题** / - 列表 / 1. 有序列表
+    function mdInline(t){
+      t = esc(t);
+      t = t.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
+      t = t.replace(/(^|[^*])\*([^*]+)\*(?!\*)/g,'$1<em>$2</em>');
+      return t;
+    }
+    function renderBody(md){
+      var lines = String(md||'').replace(/\r/g,'').split('\n');
+      var out=[], listType=null, items=[];
+      function flush(){ if(listType){ out.push('<'+listType+'>'+items.map(function(x){return '<li>'+x+'</li>';}).join('')+'</'+listType+'>'); listType=null; items=[]; } }
+      lines.forEach(function(raw){
+        var l=raw.trim();
+        if(l===''){ flush(); return; }
+        var mb=l.match(/^-\s+(.*)$/);
+        if(mb){ if(listType!=='ul'){ flush(); listType='ul'; } items.push(mdInline(mb[1])); return; }
+        var mo=l.match(/^\d+\.\s+(.*)$/);
+        if(mo && l.indexOf('**')!==0){ if(listType!=='ol'){ flush(); listType='ol'; } items.push(mdInline(mo[1])); return; }
+        flush();
+        var mh=l.match(/^\*\*(.+?)\*\*$/);
+        if(mh){ out.push('<h2>'+mdInline(mh[1])+'</h2>'); return; }
+        out.push('<p>'+mdInline(l)+'</p>');
+      });
+      flush();
+      return out.join('');
+    }
+    var id = new URLSearchParams(location.search).get('id') || 1;
+    Shedio.Blog.get(id).then(function(p){
+      if(!p){ document.getElementById('aTitle').textContent='This piece isn’t here — back to Blog.'; return; }
+      document.title = p.title + ' — Shedio';
+      document.getElementById('crumbCat').textContent = (p.category||'').split('·')[0].trim() || 'Blog';
+      document.getElementById('crumbTitle').textContent = p.title;
+      document.getElementById('aChip').textContent = p.category || '';
+      document.getElementById('aTitle').textContent = p.title || '';
+      document.getElementById('aByline').textContent = 'Shedio Team · ' + (p.date? p.date+' · ':'') + (p.readTime||'');
+      fillCover(document.getElementById('aCover'), p.coverImage);
+      document.getElementById('aBody').innerHTML = renderBody(p.body||'');
+    });
+    Shedio.Blog.list().then(function(posts){
+      var others = posts.filter(function(p){ return String(p.id)!==String(id) && [10,11,12].indexOf(+p.id)===-1; });
+      document.getElementById('moreGrid').innerHTML = others.slice(0,6).map(function(p){
+        return '<a class="card" href="/blog/article/?id='+p.id+'">'+
+          phBox('card-img', p.coverImage)+
+          '<span class="chip">'+esc(p.category)+'</span>'+
+          '<h3>'+esc(p.title)+'</h3>'+
+          '<p>'+esc(p.excerpt)+'</p></a>';
+      }).join('');
+    });
+  </script>
+
+  <style is:global>
+    .breadcrumb{max-width:880px;margin:0 auto;padding:22px 0 4px;font-size:var(--fs-caption);color:var(--muted)}
+    .breadcrumb a:hover{color:var(--ink)}
+    .article-layout{max-width:880px;margin:0 auto;padding:18px 0 40px}
+    .chip{display:inline-block;font-size:var(--fs-caption);color:var(--muted);background:var(--surface-2);padding:3px 10px;border-radius:var(--r-pill)}
+    .article-head h1{font-size:var(--fs-h1);font-weight:var(--fw-semibold);line-height:var(--lh-heading);margin:12px 0 14px;letter-spacing:var(--ls-display)}
+    .article-head .byline{font-size:var(--fs-caption);color:var(--muted);margin-bottom:22px}
+    .article-cover{aspect-ratio:16/9;border-radius:var(--radius);margin-bottom:28px}
+    /* 正文行长控制在 ~68ch（measure），封面/标题仍占满 880px */
+    .article-body{max-width:var(--measure)}
+    .article-body p{font-size:var(--fs-lead);color:#222;margin-bottom:18px;line-height:var(--lh-loose)}
+    .article-body h2{font-size:var(--fs-h3);font-weight:var(--fw-semibold);margin:1.6em 0 .4em;line-height:var(--lh-heading)}
+    .article-body ul,.article-body ol{margin:0 0 18px 22px;padding:0;font-size:var(--fs-lead);color:#222;line-height:var(--lh-loose)}
+    .article-body li{margin:7px 0}
+    .article-body strong{font-weight:var(--fw-bold);color:#111}
+    .article-body em{font-style:italic;color:#555}
+    .article-body a{color:var(--coral);text-decoration:underline;text-underline-offset:2px}
+    .article-body a:hover{color:var(--coral-deep)}
+    .disclaimer{font-size:var(--fs-caption);color:var(--muted);margin-top:26px}
+    .aside{position:sticky;top:96px;display:flex;flex-direction:column;gap:20px}
+    .related h4{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding-bottom:12px;margin-bottom:18px;border-bottom:1px solid var(--line)}
+    .rel-item{display:grid;grid-template-columns:64px 1fr;gap:12px;margin-bottom:16px;align-items:center}
+    .rel-item .rimg{aspect-ratio:1/1;border-radius:10px}
+    .rel-item h5{font-size:14px;font-weight:600}
+    .rel-item .meta{font-size:11px;color:var(--muted);margin-top:2px}
+    .contact-card{border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+    .contact-card h4{font-size:14px;font-weight:600;margin-bottom:4px}
+    .contact-card a{font-size:14px;color:var(--muted)}
+    .more{max-width:880px;margin:44px auto 0}
+    .more h2{font-size:var(--fs-h3);font-weight:var(--fw-semibold);margin-bottom:22px}
+    .more-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-5)}
+    .more-grid .chip{margin-bottom:6px}
+    @media(max-width:860px){.more-grid{grid-template-columns:1fr}}
+    /* 手机端细化（≤600px） */
+    @media(max-width:600px){
+      .breadcrumb{padding:16px 0 2px}
+      .article-cover{aspect-ratio:4/3;margin-bottom:22px}
+      .article-body table{font-size:var(--fs-small)}
+      .more{margin-top:32px}
+    }
+  </style>
+</Base>
