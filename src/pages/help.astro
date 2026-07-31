@@ -1,0 +1,138 @@
+---
+import Base from '../layouts/Base.astro';
+
+// Help Center：hero（居中，复用法务页 surface-tint 调性）+ FAQ 手风琴 + 联系卡片。
+// FAQ 用原生 <details>/<summary>，无需 JS，键盘/读屏可直接使用。
+const faqs = [
+  {
+    q: 'How do I log in?',
+    a: [
+      'Shedio uses email verification instead of passwords. Enter your email, and we’ll send you a 6-digit code.',
+      'If it doesn’t arrive within a minute or two, check your spam folder. Codes expire after a short while — just request a new one if needed.',
+    ],
+  },
+  {
+    q: 'How do I delete my account?',
+    a: [
+      'You can delete your account any time, right in the app: <strong>Profile → Settings → Delete Account</strong>, and confirm.',
+      'This permanently removes your profile and training history and cannot be undone.',
+    ],
+  },
+  {
+    q: 'Does the Shedio app cost anything?',
+    a: [
+      'The Shedio app is free to download, and there are no in-app purchases — every plan and every exercise is available at no extra cost.',
+      'If you purchased a subscription through our website, you can manage it in your account at <a href="https://shedio.life">shedio.life</a>.',
+    ],
+  },
+  {
+    q: 'Questions about billing or a charge?',
+    a: [
+      'If you see a charge from Shedio, it’s most likely a subscription started on our website. You can review or cancel it any time in your account.',
+      'Refunds are handled according to our <a href="/money-back-policy">Money-back Policy</a>.',
+      'Not sure? Email us first at <a href="mailto:support@shedio.life">support@shedio.life</a> — we’ll always work it out with you.',
+    ],
+  },
+];
+---
+<Base title="Help Center — Shedio" active=""
+      description="Shedio Help Center — logging in, deleting your account, pricing, billing, and how to reach us.">
+
+  <section class="help-hero">
+    <div class="wrap"><h1>Help Center</h1></div>
+  </section>
+
+  <main class="wrap help">
+    <section class="help-faq" aria-labelledby="faq-title">
+      <h2 id="faq-title">Common questions</h2>
+
+      <div class="faq-list">
+        {faqs.map((item, i) => (
+          <details class="faq-item" open={i === 0}>
+            <summary>
+              <span class="faq-q">{item.q}</span>
+              <span class="faq-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </span>
+            </summary>
+            <div class="faq-a">
+              {item.a.map(p => <p set:html={p} />)}
+            </div>
+          </details>
+        ))}
+      </div>
+    </section>
+
+    <section class="help-contact">
+      <div class="contact-card">
+        <div>
+          <span class="eyebrow">Still stuck?</span>
+          <h2>Tell us what&rsquo;s going on.</h2>
+          <p>Write to us with as much detail as you can &mdash; we read every message and reply within 1&ndash;2 business days.</p>
+        </div>
+        <a class="btn btn-coral" href="mailto:support@shedio.life">Email support</a>
+      </div>
+    </section>
+  </main>
+
+  <style is:global>
+    /* ---- Hero：与法务页 .legal-hero 完全一致（暖色 wash + 细分隔线 + 居中大标题）---- */
+    .help-hero{background:var(--surface-tint);border-bottom:1px solid var(--line);padding:var(--section-y) 0}
+    .help-hero h1{text-align:center;font-size:var(--fs-h1);font-weight:var(--fw-bold);
+      line-height:var(--lh-heading);color:var(--navy);letter-spacing:var(--ls-display)}
+
+    /* ---- 正文容器：居中单栏（与居中 hero 对齐），padding-block 不覆盖 .wrap 的左右内边距 ---- */
+    .help{padding-block:var(--section-y) 0}
+    .help > section{max-width:860px;margin-inline:auto}
+    .help-faq h2,.help-contact h2{font-size:var(--fs-h2);font-weight:var(--fw-bold);
+      line-height:var(--lh-heading);letter-spacing:var(--ls-heading);color:var(--navy)}
+    .help-faq h2{margin-bottom:var(--space-5)}
+
+    /* ---- FAQ 手风琴 ---- */
+    .faq-list{display:flex;flex-direction:column;gap:var(--space-3)}
+    .faq-item{background:var(--surface-2);border-radius:var(--r-lg);overflow:hidden;
+      transition:background var(--dur) var(--ease),box-shadow var(--dur) var(--ease)}
+    .faq-item:hover{box-shadow:var(--elev-1)}
+    .faq-item[open]{background:var(--surface-1);box-shadow:var(--elev-1)}
+    .faq-item summary{display:flex;align-items:center;justify-content:space-between;gap:var(--space-4);
+      padding:var(--space-5) var(--space-6);cursor:pointer;list-style:none;user-select:none}
+    .faq-item summary::-webkit-details-marker{display:none}
+    .faq-q{font-size:var(--fs-h5);font-weight:var(--fw-semibold);line-height:var(--lh-snug);color:var(--ink)}
+    .faq-item[open] .faq-q{color:var(--navy);font-weight:var(--fw-bold)}
+    .faq-icon{flex:none;width:28px;height:28px;display:grid;place-items:center;border-radius:50%;
+      color:var(--muted);background:rgba(255,255,255,.7);transition:transform var(--dur) var(--ease),color var(--dur)}
+    .faq-icon svg{width:16px;height:16px;display:block}
+    .faq-item[open] .faq-icon{transform:rotate(180deg);color:var(--coral)}
+    .faq-a{padding:0 var(--space-6) var(--space-5);color:#2c2a26;line-height:var(--lh-loose);max-width:var(--measure)}
+    .faq-a p{margin:0 0 var(--space-3)}
+    .faq-a p:last-child{margin-bottom:0}
+    .faq-a strong{font-weight:var(--fw-semibold);color:var(--ink);white-space:nowrap}
+    .faq-a a{color:var(--coral);text-decoration:underline;text-underline-offset:2px;word-break:break-word}
+    .faq-a a:hover{color:var(--coral-deep)}
+    @media (prefers-reduced-motion: reduce){.faq-icon{transition:none}}
+
+    /* ---- 底部联系卡片 ---- */
+    .help-contact{padding-block:var(--flow-tight) 0}
+    .contact-card{background:var(--surface-tint);border-radius:var(--r-lg);padding:var(--space-7);
+      display:flex;align-items:center;justify-content:space-between;gap:var(--space-6);flex-wrap:wrap}
+    .contact-card .eyebrow{display:block;margin-bottom:var(--space-2)}
+    .contact-card h2{margin-bottom:var(--space-3)}
+    .contact-card p{color:var(--muted);max-width:var(--measure-lead)}
+    .contact-card .btn{flex:none}
+
+    /* ---- 响应式 ---- */
+    @media(max-width:860px){
+      .faq-item summary{padding:var(--space-4) var(--space-5)}
+      .faq-a{padding:0 var(--space-5) var(--space-4)}
+      .contact-card{padding:var(--space-6)}
+    }
+    @media(max-width:600px){
+      .help-hero{padding:40px 0}
+      .help{padding-block:38px 0}
+      .help-faq h2{margin-bottom:18px}
+      .faq-list{gap:10px}
+      .contact-card{flex-direction:column;align-items:flex-start;padding:24px}
+      .contact-card .btn{width:100%;justify-content:center}
+    }
+  </style>
+</Base>
